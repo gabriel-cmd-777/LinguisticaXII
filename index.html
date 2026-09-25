@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linguistica Italiana — Quiz Paniere</title>
+<style>
+  :root{
+    --bg:#12141a;
+    --card:#1c1f28;
+    --accent:#5aa9ff;
+    --ok:#3ecf6e;
+    --bad:#ff5a5a;
+    --text:#eef1f7;
+    --muted:#9aa3b2;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Georgia","Times New Roman",serif;
+    font-size:20px;
+    line-height:1.5;
+  }
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:24px 18px 80px;
+  }
+  h1{
+    font-size:1.5rem;
+    text-align:center;
+    margin:0 0 4px;
+    letter-spacing:.3px;
+  }
+  .sub{
+    text-align:center;
+    color:var(--muted);
+    font-size:1rem;
+    margin-bottom:28px;
+  }
+  .progress{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:1.05rem;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+  .bar{
+    width:100%;
+    height:10px;
+    background:#2a2e3a;
+    border-radius:6px;
+    overflow:hidden;
+    margin-bottom:24px;
+  }
+  .bar-fill{
+    height:100%;
+    background:var(--accent);
+    transition:width .25s ease;
+  }
+  .card{
+    background:var(--card);
+    border-radius:14px;
+    padding:28px 24px;
+    box-shadow:0 6px 24px rgba(0,0,0,.35);
+  }
+  .tag{
+    display:inline-block;
+    font-family:Arial,sans-serif;
+    font-size:.85rem;
+    color:var(--accent);
+    background:rgba(90,169,255,.12);
+    padding:4px 10px;
+    border-radius:20px;
+    margin-bottom:14px;
+  }
+  .question{
+    font-size:1.35rem;
+    margin-bottom:22px;
+    font-weight:bold;
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .opt{
+    text-align:left;
+    background:#252936;
+    border:2px solid #333a4a;
+    color:var(--text);
+    font-family:inherit;
+    font-size:1.15rem;
+    padding:16px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:background .15s, border-color .15s;
+  }
+  .opt:hover:not(:disabled){
+    border-color:var(--accent);
+  }
+  .opt:disabled{
+    cursor:default;
+  }
+  .opt.correct{
+    background:rgba(62,207,110,.18);
+    border-color:var(--ok);
+  }
+  .opt.wrong{
+    background:rgba(255,90,90,.18);
+    border-color:var(--bad);
+  }
+  .feedback{
+    margin-top:18px;
+    font-size:1.1rem;
+    font-family:Arial,sans-serif;
+  }
+  .feedback.ok{color:var(--ok);}
+  .feedback.bad{color:var(--bad);}
+  .next-btn{
+    margin-top:22px;
+    width:100%;
+    padding:16px;
+    font-size:1.2rem;
+    font-family:Arial,sans-serif;
+    font-weight:bold;
+    background:var(--accent);
+    color:#0a0c10;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .next-btn:active{opacity:.85;}
+  .start-btn{
+    display:block;
+    margin:24px auto 0;
+    padding:18px 34px;
+    font-size:1.25rem;
+    font-family:Arial,sans-serif;
+    font-weight:bold;
+    background:var(--accent);
+    color:#0a0c10;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+  }
+  .center{text-align:center;}
+  .stats{
+    font-family:Arial,sans-serif;
+    font-size:1.1rem;
+    color:var(--muted);
+    text-align:center;
+    margin-top:10px;
+  }
+  .mode-banner{
+    text-align:center;
+    font-family:Arial,sans-serif;
+    font-size:1rem;
+    color:#ffcf5a;
+    background:rgba(255,207,90,.1);
+    border:1px solid rgba(255,207,90,.3);
+    border-radius:10px;
+    padding:10px 14px;
+    margin-bottom:20px;
+  }
+  .final-score{
+    font-size:2rem;
+    text-align:center;
+    margin:20px 0;
+    font-family:Arial,sans-serif;
+    font-weight:bold;
+  }
+  .review-list{
+    text-align:left;
+    font-family:Arial,sans-serif;
+    font-size:1rem;
+    color:var(--muted);
+    margin-top:20px;
+  }
+  .review-list li{margin-bottom:8px;}
+  .reset-link{
+    text-align:right;
+    font-family:Arial,sans-serif;
+    font-size:.9rem;
+    color:var(--muted);
+    text-decoration:underline;
+    cursor:pointer;
+    margin-bottom:14px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Linguistica Italiana</h1>
+  <div class="sub">Quiz sul paniere — CdF di secondo livello in Letteratura</div>
+  <div id="app"></div>
+</div>
+
+<script>
+// o[0] è sempre la risposta corretta in fase di autoring; verrà mescolata a runtime.
+const QUESTIONS = [
+{t:"Lez. 008",q:"Il tratto della sonorità della lettera <z>",o:["non è prevedibile in nessun caso","si può prevedere se la <z> è in posizione intervocalica","si può prevedere se la <z> è in posizione post-consonantica","da origine ad un fonema"]},
+{t:"Lez. 008",q:"La nasale bilabiale sonora corrisponde al simbolo AFI:",o:["m","ŋ","n","ɲ"]},
+{t:"Lez. 008",q:"Le vocali 'e' e 'o'",o:["possono essere aperte o chiuse","non hanno carattere distintivo","non sono dei fonemi","vengono pronunciate allo stesso modo in tutte le regioni d'Italia"]},
+{t:"Lez. 008",q:"La parola sentì:",o:["è una parola tronca","è una parola sdrucciola","è una parola bisdrucciola","è una parola piana"]},
+{t:"Lez. 008",q:"In italiano:",o:["ad una lettera dell'alfabeto possono corrispondere più fonemi.","ad ogni fonema corrisponde una sola lettera dell'alfabeto.","ogni lettera dell'alfabeto corrisponde ad un solo fonema.","nessuna delle risposte è corretta."]},
+{t:"Lez. 008",q:"La cosiddetta \"erre moscia\"",o:["è un allofono","ha carattere distintivo","è un fonema","nessuna delle risposte è corretta"]},
+{t:"Lez. 008",q:"Tra le seguenti coppie di parole è una coppia minima:",o:["palo/paro","fune/funge","pane/panca","gioco/giochi"]},
+{t:"Lez. 008",q:"Nell'italiano le vocali toniche sono:",o:["7","5","nessuna delle risposte è corretta","6"]},
+{t:"Lez. 008",q:"Le consonanti affricate",o:["sono caratterizzate della successione di una fase occlusiva e una fase fricativa in concomitanza con il passaggio dell'aria","sono caratterizzate da una chiusura totale del tratto vocale in concomitanza con il passaggio dell'aria","sono caratterizzate da un articolatore che vibra in concomitanza con il passaggio dell'aria","sono caratterizzate da una chiusura parziale del tratto vocale in concomitanza con il passaggio dell'aria"]},
+{t:"Lez. 008",q:"L'approssimante labiovelare sonora corrisponde al simbolo AFI:",o:["w","j","i","u"]},
+{t:"Lez. 008",q:"Il fono [b]",o:["nessuna delle risposte è corretta","è una consonante fricativa","è sordo","è una consonante labiodentale"]},
+{t:"Lez. 008",q:"La parola causa /ˈkawza/ contiene un esempio di:",o:["dittongo discendente","nessuna delle risposte è corretta","dittongo ascendente","iato"]},
+{t:"Lez. 008",q:"La laterale palatale sonora corrisponde al simbolo AFI:",o:["ʎ","ʃ","l","ɲ"]},
+{t:"Lez. 008",q:"La parola biscia contiene:",o:["un trigramma","un digramma","uno iato","un dittongo"]},
+{t:"Lez. 008",q:"Il fono [k] e il fono [g] differiscono per",o:["sonorità/sordità","nessuna delle risposte è corretta","modo di articolazione","luogo di articolazione"]},
+{t:"Lez. 008",q:"L'unità di analisi della fonetica è",o:["il fono","l'allofono","il fonema","nessuna delle risposte è corretta"]},
+{t:"Lez. 008",q:"Tra le seguenti parole, identificare l'unità polirematica:",o:["conferenza stampa","biblioteca","incoerente","libricino"]},
+{t:"Lez. 008",q:"Nella parola \"casa\", il morfema cas-",o:["veicola il significato lessicale","nessuna delle risposte è corretta","è un prefisso","veicola il significato grammaticale"]},
+{t:"Lez. 008",q:"Per segno si intende:",o:["un qualcosa che sta al posto di qualcos'altro, un'unità di significato","nessuna delle risposte è corretta","un concetto mentale","il sinonimo di carattere"]},
+{t:"Lez. 008",q:"Quale variabile sociolinguistica si riferisce allo studio delle lingue in un dato momento?",o:["variabile sincronica","variabile diamesica","variabile diafasica","variabile diacronica"]},
+
+{t:"Lez. 015",q:"La frase \"Di questo argomento, ne parleremo nelle prossime lezioni\" è un esempio di:",o:["dislocazione a sinistra","dislocazione a destra","costruzione focalizzante","costruzione a tema sospeso"]},
+{t:"Lez. 015",q:"Il verbo \"piove\" è",o:["zerovalente","monovalente","bivalente","trivalente"]},
+{t:"Lez. 015",q:"La frase \"Sei stato tu a chiedermi di comprare il pane\" è un esempio di:",o:["costruzione focalizzante","costruzione a tema sospeso","dislocazione a sinistra","dislocazione a destra"]},
+{t:"Lez. 015",q:"Tra i seguenti è un verbo inaccusativo:",o:["arrossire","lavorare","correre","camminare"]},
+{t:"Lez. 015",q:"Tra i seguenti è un verbo inergativo:",o:["recitare","rabbrividire","esplodere","arrossire"]},
+{t:"Lez. 015",q:"Quale tra le seguenti parole contiene un esempio di infisso?",o:["mordicchiare","fossile","vestizione","imperturbabile"]},
+{t:"Lez. 015",q:"In italiano, nei nomi la flessione riguarda:",o:["il numero","genere e numero","genere, numero e aspetto","la vocale tematica"]},
+{t:"Lez. 015",q:"In italiano, negli aggettivi la flessione riguarda prevalentemente:",o:["genere e numero","la vocale tematica","genere, numero e aspetto","il numero"]},
+{t:"Lez. 015",q:"Il verbo \"camminare\" è",o:["monovalente","zerovalente","trivalente","bivalente"]},
+{t:"Lez. 015",q:"Da un punto di vista dell'ordine dei costituenti il latino:",o:["rientra nel tipo SOV","rientra nel tipo SVO","rientra nel tipi OSV","rientra nel tipo OVS"]},
+{t:"Lez. 015",q:"Il verbo \"regalare\" è",o:["trivalente","monovalente","bivalente","zerovalente"]},
+{t:"Lez. 015",q:"Nella frase semplice, il predicato di solito tende a coincidere con:",o:["il rema","il soggetto","il tema","le informazioni note"]},
+{t:"Lez. 015",q:"Il punto e virgola suggerisce una pausa:",o:["intermedia tra quella determinata dal punto e a capo e quella determinata dalla virgola","più forte rispetto a quella dettata dal punto e a capo","più debole rispetto a quella dettata dalla virgola","più debole rispetto a qualsiasi altro segno di interpunzione"]},
+{t:"Lez. 015",q:"In italiano, nei verbi la flessione riguarda:",o:["tempo, modo, persona e numero","tempo, modo, genere","la diatesi","tempo, modo e persona (che codifica anche il numero)"]},
+{t:"Lez. 015",q:"Da un punto di vista dell'ordine dei costituenti, l'italiano:",o:["rientra nel tipo SVO","rientra nel tipo OSV","rientra nel tipo OVS","rientra nel tipo SOV"]},
+{t:"Lez. 015",q:"La parte dell'enunciato che coincide con le informazioni note di solito è il:",o:["tema","modificatore","rema","sintagma verbale"]},
+{t:"Lez. 015",q:"La frase: \"Il cane, conosciuto come il migliore amico dell'uomo, è l'animale domestico più popolare\" contiene un esempio di:",o:["inciso","dislocazione a sinistra","giustapposizione","nominalizzazione"]},
+{t:"Lez. 015",q:"La frase complessa \"Tu compra il pane: io prenderò le verdure\" è il risultato di una:",o:["giustapposizione","subordinazione","coordinazione","dislocazione a sinistra"]},
+{t:"Lez. 015",q:"La frase, \"cuocere la torta a 180 gradi per 1 ora, poi metterla a raffreddare\" contiene una forma di:",o:["anafora","inferenza","deissi","catafora"]},
+{t:"Lez. 015",q:"Costituisce un esempio di conversione:",o:["La parola \"studio\", dalla parola \"studiare\"","La parola \"abbasso\", dalla locuzione \"a basso\"","La parola \"cartoleria\", dalla parola \"carta\"","La parola \"focoso\", dalla parola \"fuoco\""]},
+
+{t:"Lez. 020",q:"Parole come albergo, sapone, alce, vanga, elmo sono:",o:["germanismi","grecismi","arabismi","latinismi"]},
+{t:"Lez. 020",q:"Le corrispondenze di significato tra parole come sciocco e sciapo, oppure anguria e cocomero costituiscono dei:",o:["geosinonimi","dialettismi","regionalismi","geomonimi"]},
+{t:"Lez. 020",q:"Un esempio di calco semantico è la parola",o:["stella","film","loggare","bistrot"]},
+{t:"Lez. 020",q:"Sono definiti prestiti adattati:",o:["parole come \"bistecca\" o \"manichino\"","parole come \"party\" o \"star\"","parole come \"sport\" o \"smart working\"","parole come \"film\", \"bistrot\", \"blitz\""]},
+{t:"Lez. 020",q:"Parole come mandorlo, anfora, filosofia, battesimo sono:",o:["grecismi","germanismi","arabismi","latinismi"]},
+{t:"Lez. 020",q:"Parole come bugie o segare, possono costituire dei:",o:["geomonimi","dialettismi","geosinonimi","regionalismi"]},
+{t:"Lez. 020",q:"Parole come equilatero, cervello, cemento, cessione sono:",o:["latinismi","arabismi","germanismi","grecismi"]},
+{t:"Lez. 020",q:"Parole come \"betulla\", \"catena\", \"lupo\"",o:["sono termini che risalgono alle lingue di sostrato","sono germanismi","sono latinismi","sono termini che risalgono al latino"]},
+{t:"Lez. 020",q:"Parole come abbacchio, stagnaro, barcarolo sono:",o:["regionalismi","dialettismi","geosinonimi","geomonimi"]},
+{t:"Lez. 020",q:"Nella frase \"quel controllore sembrava avesse la vista a raggi X\", il termine raggi X è un esempio di:",o:["detecnificazione","risemantizzazione","nessuna delle risposte proposte è corretta","neologismo"]},
+{t:"Lez. 020",q:"Sono definite prestiti linguistici non adattati:",o:["parole come \"film\", \"bistrot\", \"blitz\"","parole come \"loggare\", \"cliccare\", \"taggare\"","parole come \"bistecca\" o \"manichino\"","parole come \"finesettimana\" o \"pallacanestro\""]},
+{t:"Lez. 020",q:"Un esempio di calco strutturale è la parola:",o:["guerra fredda","film","loggare","bistrot"]},
+{t:"Lez. 020",q:"Sono esempi di parole desuete:",o:["vetusto, appropinquarsi, giuoco, algido","abbacchio, anguria, sciocco","party, pallacanestro","ghigliottina, baionetta"]},
+{t:"Lez. 020",q:"Sono esempi di prestiti dal francese parole come:",o:["ghigliottina, baionetta, toilettare, moda","flotta, rotta, babordo","guelfi, ghibellini","guerriglia, ronda"]},
+{t:"Lez. 020",q:"Parole come alambicco, alchimia, algebra, cifra sono:",o:["arabismi","grecismi","latinismi","germanismi"]},
+{t:"Lez. 020",q:"Sono esempi di prestiti dal tedesco parole come:",o:["guelfi, ghibellini","guerriglia, ronda","fine settimana, ferrovia, altoparlante","flotta, rotta, babordo"]},
+{t:"Lez. 020",q:"Il lemma è:",o:["la controparte lessicografica del lessema","il sinonimo di parola grammaticale","il sinonimo di lessema","nessuna delle risposte è corretta"]},
+{t:"Lez. 020",q:"È un esempio di parola macedonia o portmanteau:",o:["smog","ferrovia","finesettimana","pallacanestro"]},
+{t:"Lez. 020",q:"Parole come cannolo, cassata, mozzarella sono:",o:["dialettismi","geomonimi","geosinonimi","regionalismi"]},
+{t:"Lez. 020",q:"Il rapporto tra sinonimi costituisce:",o:["una relazione orizzontale","un allotropo","una relazione verticale","un rapporto sintagmatico"]},
+
+{t:"Lez. 028",q:"La lingua degli esponenti della scuola siciliana:",o:["non ci è pervenuta nella sua forma originale, perchè i manoscritti furono copiati e modificati da copisti toscani","ci è pervenuta nella sua forma originale, grazie all'opera di copisti toscani","ci è pervenuta nella sua forma originale, grazie all'opera di copisti siciliani","non ci è pervenuta nella sua forma originale, perchè i manoscritti furono copiati e modificati da copisti siciliani"]},
+{t:"Lez. 028",q:"La documentazione relativa al Concilio di Tours:",o:["attesta per la prima volta l'esistenza dei volgari romanzi","è la prima attestazione letteraria di un volgare romanzo","è la prima attestazione letteraria del volgare latino","attesta per la prima volta l'esistenza dei volgari latini"]},
+{t:"Lez. 028",q:"La più antica attestazione esistente di un volgare d'Italia:",o:["sono i Placiti Campani","è l'Appendix Probi","è il Giuramento di Strasburgo","è l'Iscrizione di San Clemente"]},
+{t:"Lez. 028",q:"Il primo vero movimento letterario in volgare italiano:",o:["fu la scuola siciliana","fu il dolce stil novo","si esprimeva principalmente in volgare fiorentino","è identificabile con il trobadorismo italiano"]},
+{t:"Lez. 028",q:"La lingua utilizzata dagli esponenti della scuola siciliana, come Jacopo da Lentini, Pier della Vigna, Federico II e Manfredi di Svevia era:",o:["il siciliano illustre con notevoli influenze da parte della lingua provenzale","un volgare di origine provenzale, influenzato dalla lingua siciliana","l'occitano, una lingua provenzale","il volgare latino"]},
+{t:"Lez. 028",q:"L'italiano così come lo conosciamo oggi:",o:["è il risultato di un lungo processo evolutivo e di selezione linguistica elaborato a partire dal fiorentino trecentesco.","è il risultato di un lungo processo evolutivo e di selezione linguistica elaborato a partire dal latino classico.","è il risultato della continuazione diretta del latino classico.","è il risultato della continuazione diretta dal fiorentino trecentesco."]},
+{t:"Lez. 028",q:"I documenti contenenti le prime attestazioni di volgare romanzo:",o:["corrispondono a testi non-letterari","corrispondono a testi letterari","corrispondono a testi poetici","includono unicamente il volgare"]},
+{t:"Lez. 028",q:"Nell'Iscrizione di San Clemente:",o:["il latino viene associato esclusivamente alla figura di San Clemente","le espressioni in volgare hanno più prestigio linguistico rispetto a quelle in latino","il latino viene associato esclusivamente alle figure del patrizio romano e dei suoi servi","il volgare viene associato esclusivamente alla figura di San Clemente"]},
+{t:"Lez. 028",q:"La variabile sociolinguistica relativa a variazioni della lingua determinate da fattori di tipo sociale:",o:["è la variabile diastratica","è la variabile diacronica","è la variabile diafasica","è la variabile diatopica"]},
+{t:"Lez. 028",q:"Tra le seguenti NON è una lingua romanza:",o:["il tedesco","l'occitano","il catalano","il napoletano"]},
+{t:"Lez. 028",q:"Il primo testo poetico in volgare italiano giunto sino a noi:",o:["è il Cantico delle Creature di San Francesco d'Assisi","è l'Appendix Probi","è l'Iscrizione di San Clemente","sono i Placiti Campani"]},
+{t:"Lez. 028",q:"La lingua che caratterizzava il Cantico delle Creature:",o:["è un volgare umbro caratterizzato da francesismi e latinismi","è un volgare latino caratterizzato da francesismi e accenni al volgare umbro","è un volgare francese caratterizzato da latinismi e accenni al volgare umbro","è un latino ecclesiastico caratterizzato da francesismi e accenni al volgare umbro"]},
+{t:"Lez. 028",q:"Le prime attestazioni di latino arcaico:",o:["corrispondono a delle iscrizioni rinvenute in oggetti di uso comune","corrispondono a delle vere e proprie attestazioni di linguaggio letterario","risalgono all'VIII secolo a.C.","risalgono al IX secolo a.C."]},
+{t:"Lez. 028",q:"Nell'Iscrizione di San Clemente:",o:["è presente una testimonianza di volgare romanesco, contrapposto al latino ecclesiastico.","è presente esclusivamente una testimonianza di volgare romanesco.","è presente una testimonianza di volgare proto-francese, contrapposto al latino ecclesiastico.","è presente esclusivamente una testimonianza di latino ecclesiastico."]},
+{t:"Lez. 028",q:"La Cista Ficoroni:",o:["è una preziosissima attestazione di latino arcaico","è una preziosissima attestazione di volgare romanzo","è una preziosissima attestazione di latino classico","è una preziosissima attestazione di volgare proto-francese"]},
+{t:"Lez. 028",q:"La transizione tra il latino ed i volgari medievali:",o:["fu il risultato di un lungo e complesso processo di transizione","fu il risultato di un breve processo di transizione","terminò definitivamente con il crollo dell'Impero Romano","avvenne in maniera lineare"]},
+{t:"Lez. 028",q:"L'Appendix Probi:",o:["è una preziosissima attestazione di latino volgare","è una preziosissima attestazione di volgare romanzo","è una preziosissima attestazione di latino arcaico","è una preziosissima attestazione di volgare proto-francese"]},
+{t:"Lez. 028",q:"La più antica attestazione esistente di volgare romanzo:",o:["è il Giuramento di Strasburgo","sono i Placiti Campani","è l'Appendix Probi","è l'Iscrizione di San Clemente"]},
+{t:"Lez. 028",q:"I Placiti Campani:",o:["sono stati scritti in latino e contengono delle attestazioni di volgare italiano","sono stati scritti in volgare latino e contengono delle attestazioni di volgare italiano","sono stati scritti in latino e contengono delle attestazioni di volgare latino","sono stati scritti interamente in volgare italiano"]},
+{t:"Lez. 028",q:"La lingua utilizzata da trovatori italiani, come Sordello, Lanfranco Cicala e Percivalle Doria era:",o:["l'occitano, una lingua provenzale","il siciliano illustre","il volgare latino","un volgare italiano influenzato dalla lingua provenzale"]},
+
+{t:"Lez. 036",q:"La Scuola Toscana:",o:["nacque come naturale prosecuzione dell'esperienza della Scuola Siciliana in territorio toscano.","ebbe Guido Guinizzelli come esponente di spicco","fu fondata da Manfredi di Svevia in Toscana","venne resa celebre da Dante"]},
+{t:"Lez. 036",q:"Le testimonianze di Travale sono uno tra i primi esempi di:",o:["documento legale che contenga una trascrizione di un volgare toscano di estrazione popolare","documento mercantile completamente redatto in volgare italiano","documento mercantile completamente redatto in volgare toscano","documento legale completamente redatto in volgare toscano"]},
+{t:"Lez. 036",q:"Il De Vulgari Eloquentia è scritto in:",o:["latino","volgare siciliano","volgare fiorentino","volgare bolognese"]},
+{t:"Lez. 036",q:"Alcuni tra gli esponenti principali del Dolce Stil Novo furono:",o:["Guido Guinizzelli e Guido Cavalcanti","Guittone d'Arezzo e Jacopo da Lentini","Federico II e Francesco Petrarca","Manfredi di Svevia e Pier della Vigna"]},
+{t:"Lez. 036",q:"Il termine Dolce Stil Novo fu coniato per la prima volta:",o:["Da Dante nella \"Divina Commedia\"","Da Dante nel \"Convivio\"","Da Dante nel \"De Vulgari Eloquentia\"","Da Dante nella \"Vita Nova\""]},
+{t:"Lez. 036",q:"L'intento di Dante nello scrivere il De Vulgari Eloquentia era quello di:",o:["dimostrare che il volgare poteva ascendere al rango di lingua letteraria","dimostrare il primato del volgare fiorentino su qualsiasi altra lingua","dimostrare il primato del latino su qualsiasi altra lingua","dimostrare il primato del volgare illustre della Scuola Siciliana e Toscana su qualsiasi altra lingua"]},
+{t:"Lez. 036",q:"Francesco Petrarca:",o:["era un fermo sostenitore del latino come lingua della cultura.","considerava il \"Canzoniere\" la sua opera maestra.","difese strenuamente l'uso del volgare come lingua della cultura.","era d'accordo con la teoria dantesca della necessità di una lingua nazionale identificata con un volgare illustre."]},
+{t:"Lez. 036",q:"Il De Vulgari Eloquentia:",o:["rimase praticamente sconosciuto, fino alla prima metà del 1500.","divenne presto un punto di riferimento per tutti i poeti trecenteschi.","fu ultimato da Dante, dopo che egli ebbe terminato la stesura della Divina Commedia.","è un'opera suddivisa in quattro libri."]},
+{t:"Lez. 036",q:"La canzone \"Donne ch'avete intelletto d'amore\" è un esempio:",o:["di poesia stilnovista","di poesia guittoniana","di poesia della scuola toscana","di poesia della scuola siciliana"]},
+{t:"Lez. 036",q:"Quale canzone viene citata da Dante nella Divina Commedia come esempio di poesia stilnovista?",o:["\"Donne ch'avete intelletto d'amore\", scritta dallo stesso Dante","\"Al cor gentil rempaira sempre amore\", scritta da Guido Guinizzelli","\"Ahi lasso, or è stagion de doler tanto\", scritta da Guittone d'Arezzo","\"Vergine bella, che di sol vestita\", scritta da Francesco Petrarca"]},
+{t:"Lez. 036",q:"Chi sono i poeti conosciuti come le \"Tre Corone\"?",o:["Dante Alighieri, Francesco Petrarca e Boccaccio","Guittone d'Arezzo, Bonagiunta Orbicciani e Guido Guinizzelli","nessuna delle risposte è corretta","Manfredi di Svevia, Pier della Vigna e Jacopo da Lentini"]},
+{t:"Lez. 036",q:"Il termine \"occitano\" fu coniato per la prima volta:",o:["Da Dante nel De Vulgari Eloquentia","Da Dante nella Vita Nova","Da Dante nella Divina Commedia","Da Dante nel Convivio"]},
+{t:"Lez. 036",q:"Petrarca vedeva la sua produzione in volgare:",o:["come una passione personale e privata, da non divulgare al pubblico","come un esempio della sua teoria sulla necessità di un volgare nazionale","come nettamente superiore alla sua produzione in latino","come un esempio significativo della sua teoria linguistica"]},
+{t:"Lez. 036",q:"Nel contesto della \"questione della lingua\" cinquecentesca, i sostenitori del fiorentino trecentesco:",o:["arrivarono a dubitare l'autenticità del De Vulgari Eloquentia.","condannarono la teoria dantesca della necessità di una lingua nazionale che tragga origine da un volgare illustre.","condannarono la teoria petrarchesca della necessità di una lingua nazionale che tragga origine da un volgare illustre.","usarono il \"De Vulgari Eloquentia\" per corroborare la loro teoria."]},
+{t:"Lez. 036",q:"La canzone \"Vergine bella, che di sol vestita\":",o:["contiene dei latinismi","contiene degli esempi di volgare siciliano","contiene degli esempi di volgare bolognese","contiene dei provenzalismi"]},
+{t:"Lez. 036",q:"Il \"Ritmo Laurenziano\" (\"Salva lo vescovo senato\")",o:["fu composto da un giullare","è un esempio di poesia stilnovistica","fu composto da un nobile","fu composto da un membro della classe ecclesiastica"]},
+{t:"Lez. 036",q:"Il \"Conto navale pisano\"",o:["è una delle prime testimonianze di documenti interamente scritti in volgare.","è un esempio di volgare illustre","è scritto in latino, e contiene delle attestazioni di volgare","è stato prodotto da degli esponenti dell'elite intellettuale toscana"]},
+{t:"Lez. 036",q:"La canzone \"Vergine bella, che di sol vestita\", è un esempio:",o:["della varietà illustre di volgare fiorentino usata da Petrarca","di poesia stilnovista","di poesia della scuola toscana","di poesia della scuola siciliana"]},
+{t:"Lez. 036",q:"La \"Divina Commedia\":",o:["ebbe immediata fortuna sia in Toscana, sia in altre regioni italiane","era rivolta solo alla popolazione più colta","ebbe poca fortuna nel Trecento, e fu riscoperta nel Cinquecento","era intelligibile solo alla popolazione più colta"]},
+{t:"Lez. 036",q:"Il documento relativo alla Postilla Amiatina:",o:["è stato scritto prevalentemente in latino, e contiene una breve attestazione di volgare toscano","è stato scritto prevalentemente in volgare toscano, e contiene dei latinismi","è stato scritto esclusivamente in volgare toscano","è stato scritto esclusivamente in latino"]},
+
+{t:"Lez. 044",q:"Il Certame Coronario indetto da Piero de' Medici nel 1441:",o:["Fu concluso in anticipo a causa di un disaccordo legato alla lingua usata dai poeti, e la vittoria non venne assegnata a nessun artista","Fu un'idea di Poggio Bracciolini","Terminò con il riconoscimento del volgare fiorentino quattrocentesco come lingua superiore nella letteratura.","Terminò con la vittoria di Leon Battista Alberti"]},
+{t:"Lez. 044",q:"Uno tra i letterati di maggiore levatura che utilizzarono la lingua cortigiana napoletana nei propri componimenti, fu:",o:["Jacopo Sannazzaro","Luigi Pulci","Baldassarre Castiglione","Mario Equicola"]},
+{t:"Lez. 044",q:"Il modello linguistico promosso da Bembo per la prosa:",o:["era la varietà linguistica utilizzata da Boccaccio nel Proemio del \"Decameron\"","era la varietà linguistica utilizzata da Boccaccio nel \"Decameron\" per narrare le novelle ad argomento comico","era ben diversa dalla varietà linguistica utilizzata negli \"Asolani\"","era la stessa varietà linguistica promossa da Dante nel \"De Vulgari eloquentia\""]},
+{t:"Lez. 044",q:"Dopo l'introduzione della stampa a caratteri mobili, i principali centri di produzione editoriale erano:",o:["Roma e Venezia","Firenze e Urbino","Genova e Bologna","Napoli e Milano"]},
+{t:"Lez. 044",q:"Che lingua adottò Machiavelli per scrivere il \"Discorso intorno alla nostra lingua\"?",o:["Il \"fiorentino vivo\"","Il fiorentino aureo","nessuna delle risposte è corretta","Il fiorentino argenteo"]},
+{t:"Lez. 044",q:"Machiavelli, nel \"Discorso intorno alla nostra lingua\":",o:["critica duramente la posizione di Dante circa il volgare toscano","vuole promuovere l'uso del fiorentino trecentesco adottato da Petrarca","afferma di essere d'accordo con la posizione di Dante circa il volgare toscano","vuole promuovere l'uso del fiorentino trecentesco adottato da Boccaccio"]},
+{t:"Lez. 044",q:"La stampa a caratteri mobili fu importata in Italia:",o:["Grazie all'intervento di Niccolò Cusano","Grazie all'intervento di Piero de' Medici","Solo all'inizio del Cinquecento","Grazie all'intervento di Leon Battista Alberti"]},
+{t:"Lez. 044",q:"La teoria linguistica di Machiavelli:",o:["non fa distinzione tra lingua scritta e lingua parlata","coincide con quella di Bembo","coincide con quella esposta da Dante nel \"De Vulgari Eloquentia\"","fa una marcata distinzione tra lingua scritta e lingua parlata"]},
+{t:"Lez. 044",q:"Bembo, nelle \"Prose della Volgar lingua\"",o:["cita dei passi della \"Divina Commedia\" per criticare lo stile \"basso\" adottato a volte da Dante","sostiene che lo stile di Petrarca sia inadatto per la poesia","cita dei passi della \"Divina Commedia\" per spiegare il perché ha scelto Dante come modello per la poesia","sostiene una tesi simile a quella teorizzata da Machiavelli"]},
+{t:"Lez. 044",q:"Leon Battista Alberti, nella Grammatichetta Vaticana:",o:["Fornisce degli schemi esplicativi per illustrare i vari aspetti della lingua che intende promuovere.","Critica aspramente il volgare fiorentino","Inserisce le spiegazioni di tipo grammaticale all'interno di un dialogo immaginario tra vari personaggi ispirati a personalità storiche realmente esistite","Fornisce degli esempi tratti da testi letterari."]},
+{t:"Lez. 044",q:"Leon Battista Alberti:",o:["Pubblicò alcune delle sue opere maggiori come il \"De Pictura\" sia nella versione in latino, sia nella versione in volgare","Fu d'accordo con le decisioni prese dai giudici nel contesto del Certame coronario","Sosteneva la superiorità del latino sul volgare fiorentino","Pubblicò le sue opere esclusivamente in volgare fiorentino Quattrocentesco"]},
+{t:"Lez. 044",q:"Il modello linguistico promosso da Bembo per la poesia:",o:["era la lingua utilizzata da Petrarca nel \"Canzoniere\"","era la lingua utilizzata da Dante nella \"Vita Nova\"","era la lingua utilizzata da Dante nel \"Convivio\"","era la lingua utilizzata da Dante nella \"Divina Commedia\""]},
+{t:"Lez. 044",q:"Nell'esporre la sua teoria sulla natura della lingua latina, Flavio Biondo arrivò a:",o:["Esporre la prima teoria relativa al passaggio dalla lingua latina alle lingue volgari romanze","Negare alcun tipo di continuazione tra il latino e le lingue volgari romanze","Teorizzare una netta divisione tra il latino parlato ed il latino utilizzato in ambito letterario","Legare l'utilizzo di quello che oggi definiamo come \"latino classico\" ad un gruppo ristretto di parlanti"]},
+{t:"Lez. 044",q:"Le \"Prose della volgar lingua\":",o:["Sono state strutturate come un dialogo di stampo platonico","Hanno come scopo quello di promuovere l'uso del volgare fiorentino cinquecentesco","Sono una grammatica pratica del fiorentino quattrocentesco","Contengono degli schemi esplicativi per illustrare la varietà di volgare che promuovono"]},
+{t:"Lez. 044",q:"Baldassarre Castiglione, nel contesto della \"Questione della lingua\"",o:["Prese le parti della teoria cortigiana","Sosteneva il primato del fiorentino quattrocentesco","Sosteneva il primato del fiorentino trecentesco","Era d'accordo con la teoria di Pietro Bembo"]},
+{t:"Lez. 044",q:"Uno dei più accesi dibattiti Quattrocenteschi sulla lingua latina fu la dialettica tra:",o:["Leonardo Bruni e Flavio Biondo","Francesco Petrarca e Dante Alighieri","Pietro Bembo e Gian Giorgio Trìssino","Niccolò Machiavelli e Pietro Bembo"]},
+{t:"Lez. 044",q:"Nel corso della \"Questione della lingua\" Cinquecentesca, quale fu l'aspetto più criticato delle lingue cortigiane?",o:["L'elevata artificialità del processo che portava alla loro creazione","Il fatto che esse erano essenzialmente identificabili con la lingua parlata del tempo","Il fatto che le lingue cortigiane erano troppo simili al latino","Il fatto che le lingue cortigiane erano prevalentemente legate all'ambiente delle cancellerie statali, e quindi erano poco adatte a diventare lingua letteraria"]},
+{t:"Lez. 044",q:"Grazie alla collaborazione tra Aldo Manuzio e Pietro Bembo, vennero pubblicate all'inizio del Cinquecento delle edizioni stampate:",o:["Della \"Divina Commedia\" di Dante Alighieri e del \"Canzoniere\" di Francesco Petrarca","Del \"Decameron\" di Giovanni Boccaccio","Del \"Cortigiano\" di Baldassarre Castiglione","Del \"Morgante\" di Luigi Pulci"]},
+{t:"Lez. 044",q:"Tra queste fu una delle più importanti invenzioni di Aldo Manuzio:",o:["Il carattere corsivo","Gli incunabola","Il carattere gotico","La stampa a caratteri mobili"]},
+{t:"Lez. 044",q:"Nella sua \"Grammatichetta\", Leon Battista Alberti tenta per la prima volta di codificare:",o:["Il volgare fiorentino quattrocentesco","Il volgare fiorentino trecentesco","Il volgare proprio della sua città di nascita: Genova","Il volgare proprio della città dove abitò per la maggior parte della sua vita: Roma"]},
+
+{t:"Lez. 052",q:"L'\"Epistola de le lettere nuovamente aggiunte ne la lingua italiana\" di Gian Giorgio Trìssino:",o:["proponeva di aggiungere all'alfabeto latino alcune lettere greche per ovviare ai principali casi di non corrispondenza tra grafia e pronuncia.","proponeva di sostituire all'alfabeto latino le lettere dell'alfabeto greco, per ovviare ai principali casi di non corrispondenza tra grafia e pronuncia.","proponeva di creare un nuovo alfabeto \"ex novo\" per sostituirlo all'alfabeto latino ed allontanare così il più possibile la lingua cortigiana dal latino","proponeva di sostituire all'alfabeto latino le lettere dell'alfabeto greco, per allontanare il più possibile la lingua cortigiana dal latino"]},
+{t:"Lez. 052",q:"L'Accademia degli Umidi:",o:["fu fondata prima dell'Accademia della Crusca","fu fondata da Benedetto Varchi","era fortemente disapprovata da Cosimo I de' Medici","era fortemente avversa al fiorentino trecentesco come lingua letteraria"]},
+{t:"Lez. 052",q:"Gian Giorgio Trìssino:",o:["Era un fermo oppositore della teoria della superiorità del fiorentino trecentesco rispetto alla lingua cortigiana","Criticò duramente il \"De Vulgari Eloquentia\" di Dante","Elaborò una teoria linguistica che ancora oggi è alla base dell'ideologia dell'Accademia della Crusca","Concordava con la teoria linguistica di Pietro Bembo"]},
+{t:"Lez. 052",q:"La commedia \"Bilóra\"",o:["è un esempio di \"letteratura dialettale riflessa\"","è priva di dialettismi e linguaggio scurrile","seguiva gli standard lessicali stabiliti dall'\"Accademia della Crusca\"","fu composta interamente in italiano"]},
+{t:"Lez. 052",q:"Il padovano Angelo Beolco, detto Ruzante:",o:["Fece parte dell'\"Accademia degli Infiammati\"","Fece parte dell'\"Accademia della Crusca\"","Fece parte dell'\"Accademia degli Umidi\"","Scriveva in fiorentino cinquecentesco"]},
+{t:"Lez. 052",q:"Giovan Battista Basile:",o:["Scrisse una raccolta di fiabe in dialetto napoletano, tra cui troviamo Cenerentola","Pubblicò la sua raccolta di fiabe quando ancora era in vita","Scrisse una raccolta di fiabe in dialetto fiorentino","Scrisse una raccolta di fiabe in dialetto napoletano, che fu aspramente criticata dai fratelli Grimm"]},
+{t:"Lez. 052",q:"L'umanista Benedetto Varchi:",o:["entrò a far parte dell'\"Accademia Fiorentina\"","Nell'\"Ercolano\", espose una teoria linguistica radicalmente differente da quella di Machiavelli","entrò a far parte dell'\"Accademia della Crusca\"","Concordava pienamente con la concezione linguistica di Gian Giorgio Trìssino"]},
+{t:"Lez. 052",q:"Nel corso del Settecento:",o:["Vennero coniati nuovi tecnicismi, prevalentemente legati alle arti, alle scienze e al mondo industriale","L'\"Accademia della Crusca\" si dissolse","In ambito giuridico, si utilizzava esclusivamente il latino","L'italiano ancora non veniva insegnato nelle scuole"]},
+{t:"Lez. 052",q:"Dopo il Concilio di Trento:",o:["La Chiesa Cattolica decise di vietare la traduzione delle Sacre Scritture","La Chiesa Cattolica decise di ricorrere esclusivamente al latino per i sermoni","La Chiesa Cattolica decise di ricorrere esclusivamente al fiorentino trecentesco per i sermoni","La Chiesa Cattolica decise di consentire la traduzione delle Sacre Scritture"]},
+{t:"Lez. 052",q:"Melchiorre Cesarotti:",o:["Gettò le basi per la moderna teoria legata alle variabili sociolinguistiche","Era un fermo oppositore della teoria legata alle variabili sociolinguistiche","non concordava con l'inclusione di tecnicismi di coniazione settecentesca, all'interno dei vocabolari.","Era un fermo oppositore delle idee illuministe"]},
+{t:"Lez. 052",q:"Il membro dell'\"Accademia degli Umidi\" Pier Francesco Giambullari:",o:["Fu il primo fiorentino a scrivere e pubblicare una Grammatica della lingua fiorentina","Rigettava completamente la teoria linguistica del \"fiorentino vivo\"","Venne espulso dall'\"Accademia Fiorentina\" perché non simpatizzava con le idee politiche di Cosimo I de' Medici","Venne espulso dall'\"Accademia Fiorentina\" in seguito ad un alterco con Antonio Francesco Grazzini (detto il \"Lasca\")"]},
+{t:"Lez. 052",q:"L'intellettuale settecentesco Alessandro Verri:",o:["espresse pubblicamente il suo dissenso sulle scelte operate dall'Accademia della Crusca in merito alla pubblicazione della quarta edizione del Vocabolario","era un fermo sostenitore del classicismo letterario","non concordava con l'inclusione di tecnicismi di coniazione settecentesca, all'interno dei vocabolari.","concordava appieno con le scelte operate dall'Accademia della Crusca in merito alla pubblicazione della quarta edizione del Vocabolario"]},
+{t:"Lez. 052",q:"Il periodico \"Il Caffè\":",o:["era prevalentemente indirizzato ad un pubblico colto","era una pubblicazione che si occupava prevalentemente di riportare notizie di attualità","è un giornale ancora pubblicato a Milano","era un giornale dagli ideali filo-austriaci"]},
+{t:"Lez. 052",q:"L'Accademia della Crusca:",o:["fu fondata da un gruppo di intellettuali fiorentini come un circolo intellettuale di stampo goliardico, dove discutere di temi linguistici","fu fondata prima dell'\"Accademia degli Umidi\"","fu fondata con lo specifico scopo di contrapporsi ideologicamente all'\"Accademia degli Infiammati\" di Padova","fu fondata da un gruppo di intellettuali fiorentini che avversavano categoricamente la teoria linguistica di Pietro Bembo"]},
+{t:"Lez. 052",q:"Il vocabolario dell'Accademia della Crusca:",o:["Includeva sia termini propri del fiorentino Trecentesco, sia termini propri del fiorentino argenteo","Escludeva termini tratti da opere scritte da autori non fiorentini","Includeva unicamente termini propri del fiorentino argenteo","Includeva unicamente termini propri del fiorentino Trecentesco"]},
+{t:"Lez. 052",q:"Pietro Verri:",o:["Pubblicò un articolo sul \"Caffé\" dove criticava lo stile ironico che Parini utilizzava nel \"Giorno\"","Era fortemente contrario alle idee illuministe propugnate dagli autori degli articoli pubblicati nel \"Caffè\"","Non concordava con l'ideologia illuminista propria dell'\"Accademia dei Pugni\".","Pubblicò un articolo sul \"Caffé\" dove elogiava lo stile ironico che Parini utilizzava nel \"Giorno\""]},
+{t:"Lez. 052",q:"Lo \"stile spezzato\", conosciuto anche come style coupé:",o:["veniva spesso utilizzato nel contesto degli articoli pubblicati nei periodici settecenteschi","Seguiva prevalentemente la struttura sintattico SOV","coincideva con la sintassi propria della prosa letteraria boccaccesca","Prevedeva frequenti inversioni sintattiche"]},
+{t:"Lez. 052",q:"Nella seconda metà del Settecento:",o:["L'italiano divenne materia di insegnamento nelle scuole","Nel contesto delle spiegazioni relative alle lezioni universitarie, si utilizzava unicamente il latino","I fanciulli non avevano ancora accesso a grammatiche specificamente pensate per l'insegnamento scolastico della lingua italiana.","L'italiano ancora non era materia di insegnamento nelle scuole"]},
+{t:"Lez. 052",q:"La diffusione dell'italiano normato dalle grammatiche cinquecentesche e dai primi vocabolari:",o:["In una prima fase, riguardò esclusivamente le classi colte","Avvenne rapidamente, nel corso del XVI secolo","Avvenne rapidamente, anche presso le classi meno colte","Fu ostacolata dalla Chiesa"]},
+{t:"Lez. 052",q:"La seconda edizione del Vocabolario dell'Accademia della Crusca:",o:["È il risultato di una ricerca lessicografica ancora più estesa dell'edizione precedente","Subì un cambiamento radicale rispetto alla prima edizione","Fu elaborata, ma non venne mai pubblicata","Non si fondava più sulla teoria elaborata da Pietro Bembo"]},
+
+{t:"Lez. 059",q:"La \"Legge Casati\", promulgata in Piemonte nel 1859 ed estesa nel 1861 a tutto il territorio nazionale:",o:["prevedeva due anni di istruzione elementare gratuiti per tutti i cittadini","prevedeva un sistema nazionale di scuola dell'obbligo","prevedeva una retta scolastica agevolata per i cittadini meno abbienti","prevedeva la gratuità dell'intero percorso scolastico"]},
+{t:"Lez. 059",q:"Tra i fattori che contribuirono di più alla diffusione dell'italiano all'indomani dell'Unità d'Italia NON troviamo:",o:["l'imposizione da parte del governo di usare la lingua nazionale in ogni contesto","le migrazioni interne ed esterne","la burocrazia statale","la scuola e le riforme scolastiche"]},
+{t:"Lez. 059",q:"Il linguaggio tipico delle \"commedie all'italiana\":",o:["poteva includere dialettismi ed espressioni colloquiali","era un italiano molto vicino a quello letterario","coincideva con l'italiano usato abitualmente dall'èlite colta del periodo","era un italiano molto simile a quello insegnato a scuola"]},
+{t:"Lez. 059",q:"L'ambiente culturale in cui crebbe Alessandro Manzoni:",o:["Era fortemente influenzato dalla corrente illuminista","Era fortemente conservatore e chiuso a qualunque innovazione, anche in campo linguistico","Era fortemente influenzato dalla cultura positivista tedesca","Era caratterizzato da un ostinato attaccamento ai canoni linguistici dettati dall'\"Accademia della Crusca\""]},
+{t:"Lez. 059",q:"A quale lingua Manzoni paragona l'italiano per individuare i problemi relativi alla \"questione della lingua\" nell'Ottocento?",o:["il francese","il tedesco","l'inglese","il latino"]},
+{t:"Lez. 059",q:"La lingua utilizzata da Manzoni per la stesura definitiva dei \"Promessi Sposi\":",o:["coincideva con il \"fiorentino vivo\", ovvero una lingua coeva parlata dalla classe colta fiorentina.","coincideva con una commistione di toscano e lombardo, con l'aggiunta di francesismi e latinismi.","coincideva con il fiorentino trecentesco.","coincideva con la lingua italiana che fino a quel momento era stata codificata nei dizionari e nelle grammatiche."]},
+{t:"Lez. 059",q:"Qual era il titolo della prima, rudimentale versione dei \"Promessi Sposi\"?",o:["\"Fermo e Lucia\"","\"Gli Sposi Promessi\"","\"I Promessi Sposi\"","\"Renzo e Lucia\""]},
+{t:"Lez. 059",q:"La \"Riforma Gentile\", promulgata nel 1923:",o:["prevedeva un sistema di sanzioni pecuniarie in caso di mancato rispetto della scuola dell'obbligo","prevedeva un sistema scolastico completamente diverso da quello attuale","non prevedeva la scuola dell'obbligo","prevedeva la scuola dell'obbligo fino all'ultimo anno delle superiori"]},
+{t:"Lez. 059",q:"In seguito all'unità d'Italia:",o:["tutti gli impiegati degli uffici pubblici dovettero utilizzare l'italiano come lingua ufficiale nel contesto lavorativo","il governo permise ai burocrati di continuare ad utilizzare il dialetto","solamente i cittadini alfabetizzati vennero ammessi nei ranghi dell'esercito","il governo obbligò per legge tutta la popolazione a comunicare in italiano"]},
+{t:"Lez. 059",q:"Il programma televisivo \"Non è mai troppo tardi\":",o:["era prevalentemente rivolto ad un pubblico adulto e non alfabetizzato","includeva lezioni di italiano per chi era già in grado di leggere","includeva lezioni di letteratura italiana","era prevalentemente rivolto ad un pubblico di bambini non alfabetizzati"]},
+{t:"Lez. 059",q:"La teoria di Ascoli in merito alla questione linguistica dell'Ottocento:",o:["includeva un confronto tra la realtà linguistica italiana e quella della Germania","era una delle basi teoriche della relazione fornita dalla commissione convocata dal ministro Broglio per fornire delle soluzioni alla \"questione della lingua\" ottocentesca","includeva un confronto tra la realtà linguistica italiana e quella della Francia","fu pubblicata in una rivista specialistica prima della pubbicazione della versione definitiva dei \"Promessi Sposi\""]},
+{t:"Lez. 059",q:"Il linguista goriziano Graziadio Isaia Ascoli:",o:["tentò di confutare la teoria manzoniana basata sull'uso del \"fiorentino vivo\" come modello per la lingua nazionale","concordava con la teoria manzoniana basata sull'uso del \"fiorentino vivo\" come modello per la lingua nazionale","fu fortemente influenzato dalla cultura illuminista francese","non concordava con la necessità di una lingua nazionale all'indomani dell'unità d'Italia"]},
+{t:"Lez. 059",q:"Il censimento effettuato negli anni '60 del Novecento:",o:["rivelava che la maggior parte della popolazione era ormai alfabetizzata","rivelò un tasso di analfabetismo inferiore all'1%","rivelava che la maggior parte della popolazione era ancora analfabeta","rivelava che le politiche perseguite dal ministero dell'istruzione non erano efficaci"]},
+{t:"Lez. 059",q:"La lingua dei primi film italiani in sonoro:",o:["era un italiano molto vicino a quello letterario","includeva l'uso dei dialetti","era l'italiano utilizzato abitualmente in un contesto orale","era molto simile a quella utilizzata nelle \"commedie all'italiana\""]},
+{t:"Lez. 059",q:"Tra i suggerimenti forniti dalla commissione convocata dal ministro Broglio per favorire la diffusione dell'italiano NON figura:",o:["La richiesta di inserire nel programma scolastico lo studio di brani provenienti dai \"Promessi Sposi\"","La richiesta di pubblicazione di un vocabolario fondato sul \"fiorentino vivo\"","La richiesta di invio di insegnanti di origine toscana nelle scuole primarie delle diverse province italiane","La richiesta di adeguare l'impostazione dei testi scolastici e della lingua ufficiale delle pubbliche amministrazioni all'uso del \"fiorentino vivo\"."]},
+{t:"Lez. 059",q:"Dopo la pubblicazione della versione definitiva dei \"Promessi Sposi\" Manzoni:",o:["continuò a prodigarsi attivamente per fornire una soluzione alla \"questione della lingua\" ottocentesca, collaborando attivamente anche con il ministro della pubblica istruzione.","si prodigò presso il governo per l'adozione del canone linguistico proprio della letteratura settecentesca come modello della lingua italiana da insegnare nelle scuole elementari","si ritirò a vita privata","perse interesse per la \"questione della lingua\" ottocentesca"]},
+{t:"Lez. 059",q:"I cosiddetti \"romanzi d'appendice\":",o:["erano destinati ad essere pubblicati in puntate nei periodici","erano pubblicazioni autonome","erano romanzi venduti assieme ad uno specifico periodico ad un prezzo di favore","usavano il linguaggio giornalistico"]},
+{t:"Lez. 059",q:"I migranti italiani che si stabilirono in America Latina tra fine '800 e prima metà del '900:",o:["tendevano a comunicare tra di loro prevalentemente in italiano, così da abbattere le barriere linguistiche costituite dal dialetto.","abbandonarono definitivamente l'uso dell'italiano.","tendevano a comunicare tra di loro nei dialetti delle loro regioni d'origine.","tendevano a comunicare tra di loro nella lingua del paese d'arrivo."]},
+{t:"Lez. 059",q:"Alessandro Manzoni:",o:["si recò personalmente a Firenze, per incontrare l'èlite colta del periodo, in modo da acquisire un modello di \"fiorentino vivo\" e rivedere così la lingua per la stesura definitiva del romanzo \"I Promessi Sposi\".","per la stesura del \"Fermo e Lucia\" si recò personalmente a Firenze, per incontrare l'èlite colta del periodo, in modo da acquisire un modello di \"fiorentino vivo\".","per la stesura definitiva dei \"Promessi Sposi\", utilizzò un modello di lingua fornito dalle grammatiche del fiorentino a lui contemporanee.","si recò personalmente a Firenze, per incontrare gli Accademici della Crusca, in modo da rivedere la lingua del romanzo secondo i canoni letterari allora vigenti."]},
+{t:"Lez. 059",q:"All'indomani dell'unità d'Italia:",o:["si registrava un tasso di alfabetizzazione estremamente basso","si registrava un tasso di alfabetizzazione quasi prossimo al 90%","il Piemonte e la Lombardia erano tra le regioni meno istruite a causa delle conseguenze dei conflitti risorgimentali","l'Italia registrava un tasso di alfabetizzazione sensibilmente più alto degli altri paesi europei"]},
+
+{t:"Lez. 067",q:"La prostesi:",o:["è un fenomeno fonetico consistente nell'aggiunta di un suono all'inizio di una parola.","è un fenomeno fonetico consistente nell'aggiunta di un suono all'interno di una parola.","è un fenomeno fonetico consistente nell'aggiunta di un suono alla fine di una parola.","è nella caduta di un suono alla fine di una parola."]},
+{t:"Lez. 067",q:"Nel passaggio dal latino all'italiano:",o:["i verbi della seconda e della terza coniugazione latina confluirono nella seconda coniugazione dell'italiano","i verbi della quarta coniugazione latina confluirono nella seconda coniugazione dell'italiano","i verbi della prima coniugazione latina confluirono nella seconda coniugazione dell'italiano","i verbi della quarta e della prima coniugazione latina confluirono nella seconda coniugazione dell'italiano"]},
+{t:"Lez. 067",q:"Nel passaggio dal latino all'italiano:",o:["non si registrano particolari cambiamenti relativi alla categoria morfologica del numero.","si registrano notevoli cambiamenti relativi alla categoria morfologica del numero.","la desinenza del caso veicolava unicamente la categoria morfologica del genere.","le parole che appartenevano al genere neutro del latino passarono esclusivamente al genere femminile dell'italiano."]},
+{t:"Lez. 067",q:"Il nesso consonantico -PL-:",o:["era proprio del latino classico","non subì alcun tipo di mutamento fonetico nel passaggio dal latino all'italiano","venne citato nell'\"Appendix Probi\" come esempio di buona pronuncia","era considerato un errore nel latino classico"]},
+{t:"Lez. 067",q:"Quale fu l'unico caso del latino a sopravvivere alla progressiva scomparsa del sistema dei casi?",o:["l'accusativo","il nominativo","il dativo","l'ablativo"]},
+{t:"Lez. 067",q:"Nel latino classico:",o:["Non esisteva il modo condizionale","Il condizionale veniva formato esclusivamente tramite la desinenza del verbo","Il passivo veniva formato esclusivamente tramite la desinenza del verbo","Il passivo veniva formato esclusivamente in maniera perifrastica"]},
+{t:"Lez. 067",q:"Nel passaggio dal latino all'italiano, il fenomeno dell'assimilazione regressiva:",o:["è un fenomeno esemplificato dal passaggio NOCTE(M) > nòtte","non fu determinante","è un fenomeno che non interessava le consonanti","è un fenomeno che caratterizzò unicamente il sistema vocalico"]},
+{t:"Lez. 067",q:"Nel passaggio dal latino all'italiano, l'occlusiva velare sorda /k/ e l'occlusiva velare sonora /g/:",o:["Si palatalizzarono rispettivamente in /ʧ/e /ʤ/ se seguite dalle vocali E o I","Non subirono alcun tipo di mutamento fonetico","Si palatalizzarono rispettivamente in /ʧ/e /ʤ/ se seguite dalle vocali U o O","Si palatalizzarono rispettivamente in /ʧ/e /ʤ/ se seguite dalle vocali A o O"]},
+{t:"Lez. 067",q:"Quante coniugazioni aveva il latino?",o:["4","2","5","3"]},
+{t:"Lez. 067",q:"Quale tra le seguenti affermazioni è SBAGLIATA?",o:["La -M finale, tipica tra le altre cose della desinenza dell'accusativo singolare, cadde nel passaggio dal volgare fiorentino all'italiano","La caduta della -S finale determinò due diversi esiti nel passaggio all'italiano","La prima attestazione della caduta della -T finale risale alla prima età imperiale","La -M finale, tipica della desinenza dell'accusativo singolare, fu la prima consonante in posizione finale a cadere nel latino parlato"]},
+{t:"Lez. 067",q:"Il monottongamento:",o:["è la tendenza a pronunciare un dittongo come un'unica vocale","non è un fenomeno che ha interessato il passaggio dal latino all'italiano","è la tendenza a pronunciare un'unica vocale come un dittongo","è il fenomeno che ha causato il vocalismo atono nel passaggio dal latino all'italiano"]},
+{t:"Lez. 067",q:"L'articolo determinativo:",o:["Per il maschile singolare deriva dalla forma (ĬL)LŬ(M)","Per il maschile singolare deriva dalla forma ŪNŬ(M)","venne introdotto circa un secolo prima di Cristo nel contesto del passaggio al latino volgare","era regolarmente utilizzato nel latino classico"]},
+{t:"Lez. 067",q:"Nella sintassi del latino:",o:["c'era una relativa libertà nella disposizione delle parole, grazie al sistema dei casi","si seguiva unicamente l'ordine dei costituenti SOV","si seguiva unicamente l'ordine dei costituenti SVO","si seguiva unicamente l'ordine dei costituenti VOS"]},
+{t:"Lez. 067",q:"L'accento musicale:",o:["è una caratteristica del latino","è una caratteristica che è passata dal latino all'italiano","è una caratteristica dell'italiano","è una caratteristica che tutti i parlanti di madrelingua italiana sono in grado di distinguere"]},
+{t:"Lez. 067",q:"Il sistema dei casi tipico del latino:",o:["veicolava tramite le desinenze finali tra le altre cose anche significati di tipo sintattico e logico","veicolava tramite le desinenze finali unicamente significati legati al genere e al numero","prevedeva cinque casi","sopravvisse interamente nel passaggio dal latino all'italiano"]},
+{t:"Lez. 067",q:"Nella grammatica storica:",o:["Il simbolo > significa \"passa a\"","le parole in latino sono fornite esclusivamente nel caso nominativo","Il simbolo > significa \"proviene da\"","se un corpo fonico è inserito tra parentesi tonde () significa che si è preservato nel passaggio all'italiano"]},
+{t:"Lez. 067",q:"La differenza tra vocali brevi e vocali lunghe:",o:["era un tratto distintivo nel latino","è un tratto distintivo nell'italiano","era una caratteristica della lingua latina che neanche i parlanti madrelingua riuscivano a padroneggiare","rimase intatta a seguito del fenomeno del vocalismo del latino volgare"]},
+{t:"Lez. 067",q:"L'epitesi:",o:["è un fenomeno fonetico consistente nell'aggiunta di un suono alla fine di una parola.","è un fenomeno fonetico consistente nell'aggiunta di un suono all'inizio di una parola.","è nella caduta di un suono alla fine di una parola.","è un fenomeno fonetico consistente nell'aggiunta di un suono all'interno di una parola."]},
+{t:"Lez. 067",q:"Il vocalismo tonico del sardo:",o:["non distingue tra vocali aperte e vocali chiuse","coincide con il vocalismo atono dell'italiano","ammette solamente vocali aperte","ammette solamente vocali chiuse"]},
+{t:"Lez. 067",q:"Quante vocali ha il latino in tutto?",o:["10","8","5","7"]},
+
+{t:"Lez. 076",q:"Il linguaggio tipico delle opere di Gadda:",o:["è un ricercato commisto di varie lingue definito dagli esperti come \"pastiche\"","è un commisto tra italiano e milanese","è il milanese","è l'italiano"]},
+{t:"Lez. 076",q:"Una parola agrammaticale:",o:["è una parola che viola il sistema linguistico di una determinata lingua","è il sinonimo di una parola inaccettabile","è il sinonimo di una parola scorretta","è una parola che viola la norma di una determinata lingua"]},
+{t:"Lez. 076",q:"Quale tra le seguenti affermazioni è SBAGLIATA:",o:["Il linguaggio giovanile è un gergo","Alcuni termini specifici di un gergo sono il risultato di una risemantizzazione","I gerghi sono varianti linguistiche sottoposte ad un continuo cambiamento","I gerghi sono caratterizzati da un elevato livello di cripticità"]},
+{t:"Lez. 076",q:"Il linguaggio dell'economia:",o:["è caratterizzato da un ampio uso di anglicismi","è caratterizzato da una notevole chiusura ai prestiti linguistici","è caratterizzato da un elevato livello di cripticità","non appartiene alla categoria delle lingue speciali"]},
+{t:"Lez. 076",q:"La gorgia:",o:["fa parte delle caratteristiche tipiche del fiorentino che non sono ammesse nell'italiano standard","è una caratteristica accettata nella varietà orale dell'italiano standard","non è più in uso nel fiorentino contemporaneo","è una delle caratteristiche tipiche dell'italiano standard"]},
+{t:"Lez. 076",q:"Il processo di ri-standardizzazione dell'italiano:",o:["Ebbe come conseguenza la progressiva semplificazione paradigmatica delle alternative grammaticali fornite dal sistema della lingua","Ha portato ad una progressivo aumento divario tra la grammatica dell'italiano così come viene insegnata a scuola e l'uso della lingua italiana","Ha principalmente interessato la pronuncia della lingua","Ebbe come conseguenza una norma linguistica estremamente più complessa"]},
+{t:"Lez. 076",q:"Nell'ambito della semplificazione paradigmatica del sistema pronominale dell'italiano:",o:["per i pronomi personali di terza persona femminili singolari, \"lei\" ha sostituito definitivamente \"ella\", anche nella norma linguistica","per i pronomi personali di terza persona maschili plurali, \"loro\" ha sostituito definitivamente \"essi\", anche nella norma linguistica","si sono verificati dei fenomeni per cui i pronomi personali soggetto si sono andati a sostituire ai pronomi personali oggetto","per i pronomi personali di terza persona maschili singolari, \"lui\" ha sostituito definitivamente \"egli\", anche nella norma linguistica"]},
+{t:"Lez. 076",q:"Uno dei sintomi della semplificazione paradigmatica del sistema verbale dell'italiano:",o:["è la tendenza a preferire nel parlato il passato prossimo al passato remoto, anche per esprimere azioni concluse e senza legami con il presente","è l'eliminazione totale dell'uso del modo condizionale","è la tendenza a preferire nel parlato il passato remoto al passato prossimo, anche per esprimere azioni che ancora hanno ripercussioni sul presente","è l'eliminazione totale dell'uso del modo congiuntivo"]},
+{t:"Lez. 076",q:"La lingua del web:",o:["riflette ed amplifica la lingua del mondo reale","è molto diversa da quella utilizzata nel mondo reale.","è interamente ascrivibile alla varietà delle lingue speciali","nessuna delle risposte è corretta"]},
+{t:"Lez. 076",q:"Le scritture digitali",o:["sono contenuti testuali prodotti tramite supporti digitali","sono caratterizzate da una spiccata linearità","sono molto simili ai testi scritti tradizionali","sono contenuti testuali creati esclusivamente per la fruizione online"]},
+{t:"Lez. 076",q:"I gerghi:",o:["condividono alcune caratteristiche con le lingue speciali","Non sono legati alla variabile diatopica","Non sono legati alla variabile diastratica","Non sono legati alla variabile diafasica"]},
+{t:"Lez. 076",q:"L'italiano standard coincide con:",o:["Il fiorentino emendato","Il fiorentino trecentesco","Il toscano emendato","Il fiorentino popolare"]},
+{t:"Lez. 076",q:"Qual è il linguaggio tipico delle opere della narrativa neorealista di Pasolini?",o:["Un commisto tra italiano e romanesco","Il romanesco","L'italiano","nessuna delle risposte è corretta"]},
+{t:"Lez. 076",q:"L'italiano correntemente usato dalle pubbliche amministrazioni:",o:["è sempre più vicino al linguaggio aziendale","non ammette prestiti linguistici","coincide con il linguaggio aziendale","è caratterizzato da un elevato livello di cripticità"]},
+{t:"Lez. 076",q:"L'italiano standard nella forma orale:",o:["è padroneggiato unicamente da persone esperte in dizione (come ad esempio attori, doppiatori, ecc.)","è utilizzato solamente in ambienti accademici","è padroneggiato da tutti gli italiani","è padroneggiato dalla maggior parte degli italiani"]},
+{t:"Lez. 076",q:"La codificazione linguistica dell'italiano standard:",o:["ebbe inizio a partire dal XVI secolo","terminò nel XVI secolo","ebbe inizio a partire dal XIX secolo","comportò un'immediata diffusione dell'italiano nelle scuole"]},
+{t:"Lez. 076",q:"Il linguaggio burocratico:",o:["è stato progressivamente semplificato dalle istituzioni italiane a partire dagli anni Novanta","ha dato origine al linguaggio giuridico","è stato progressivamente semplificato dalle istituzioni italiane a partire dagli anni Settanta","ha sostituito il linguaggio aziendale"]},
+{t:"Lez. 076",q:"Sono delle parole che hanno subito il processo di \"tecnificazione\":",o:["forza; attore; fermo; liquido","contagiare; nevrosi","emicrania; spasmo","mal di testa; bipolarismo"]},
+{t:"Lez. 076",q:"La lingua scritta e la lingua parlata:",o:["Sono legate alla variabile diamesica","Sono legate alla variabile diatopica","Sono legate alla variabile diastratica","Sono legate alla variabile diafasica"]},
+{t:"Lez. 076",q:"Le lingue speciali:",o:["Sono prevalentemente legate alla variabile diafasica","Sono prevalentemente legate alla variabile diatopica","Sono prevalentemente legate alla variabile diamesica","Sono prevalentemente legate alla variabile diastratica"]},
+
+{t:"Lez. 082",q:"I dialetti italiani:",o:["possono essere classificati come lingue romanze","sono delle varietà dell'italiano","hanno in ogni caso un prestigio pari a quello dell'italiano","non prevedono una tradizione scritta"]},
+{t:"Lez. 082",q:"Un esempio di ipercorrettismo è:",o:["La tendenza dei siciliani a chiudere tutte le vocali","La tendenza dei romani ad eliminare determinati regionalismi di origine romanesca dal parlato","La tendenza dei fiorentini ad eliminare i tratti relativi alla gorgia","nessuna delle risposte è corretta"]},
+{t:"Lez. 082",q:"Le varietà regionali dell'italiano:",o:["sono un esempio di variazione diatopica","sono 20, esattamente come le regioni d'italia","non hanno a che fare con i dialetti","nessuna delle risposte è corretta"]},
+{t:"Lez. 082",q:"Gli italiani regionali:",o:["sono varietà \"intermedie\" tra i dialetti e la lingua italiana normata","nessuna delle risposte è corretta","si sono venuti a creare subito dopo la normazione dell'italiano","sono il sinonimo di dialetti"]},
+{t:"Lez. 082",q:"Gli atlanti linguistici:",o:["sono utili per la classificazione delle varietà di italiano standard","sono utili per la classificazione delle lingue speciali","sono uno strumento utile per i parlanti stranieri in Italia su una scala geografica","non sono più in uso nella dialettologia contemporanea"]},
+{t:"Lez. 082",q:"Le linee La Spezia-Rimini e Roma-Ancona:",o:["coincidono in linea di massima con dei confini naturali","nessuna delle risposte è corretta","non hanno a che fare con i sostrati linguistici","coincidono in linea di massima con i correnti confini politici"]},
+{t:"Lez. 082",q:"La ricostruzione storica dei dialetti d'Italia:",o:["è possibile esclusivamente in caso ci sia pervenuta una tradizione scritta (letteraria o non-letteraria)","è possibile per tutti i dialetti","è possibile unicamente nel caso in cui ci sia pervenuta una tradizione letteraria","non è possibile in nessun caso"]},
+{t:"Lez. 082",q:"Quale tra i seguenti dialettologi fu il primo a coniare il termine \"italiani regionali\"?",o:["Giovan Battista Pellegrini","Graziadio Isaia Ascoli","Clemente Merlo","Giacomo Devoto"]},
+{t:"Lez. 082",q:"Le minoranze linguistiche nazionali presenti in Italia:",o:["sono presenti prevalentemente lungo il confine settentrionale del paese","non sono tutelate da alcuna legge","sono caratterizzate dall'utilizzo di un'unica lingua","sono presenti prevalentemente nell'Italia meridionale"]},
+{t:"Lez. 082",q:"Le leggi che tutelano le minoranze linguistiche in Italia:",o:["prevedono unicamente la tutela delle cosiddette \"minoranze nazionali\"","nessuna delle risposte è corretta","prevedono unicamente la tutela delle minoranze presenti nelle cosiddette \"isole linguistiche\"","sono estese a tutti i dialetti presenti sul suolo italiano"]},
+{t:"Lez. 082",q:"La distinzione proposta da Gerhard Rohlfs nell'Atlante Linguistico Italo-Svizzero prevedeva:",o:["una distinzione che si basava sulla descrizione di due grandi confini geografici","una distinzione che si basava sulla descrizione di tre grandi confini geografici","una distinzione che si basava sulla distanza linguistica dei dialetti rispetto al latino","nessuna delle risposte è corretta"]},
+{t:"Lez. 082",q:"La prima classificazione dei dialetti italiani fu proposta da:",o:["Graziadio Isaia Ascoli","nessuna delle risposte è corretta","Gerhard Rohlfs","Alessandro Manzoni"]},
+{t:"Lez. 082",q:"I parlanti delle minoranze linguistiche italiane:",o:["nella maggior parte dei casi sono competenti nell'uso di due o più lingue","non sono competenti nell'uso dell'italiano","nella maggior parte dei casi sono competenti esclusivamente nell'uso della lingua minoritaria","nessuna delle risposte è corretta"]},
+{t:"Lez. 082",q:"La tradizione scritta del dialetto tende a non interessare:",o:["testi giuridici o burocratici","la produzione musicale","la letteratura","testi relativi ad opere teatrali"]},
+{t:"Lez. 082",q:"Le isole linguistiche in Italia:",o:["sono realtà linguistiche minoritarie presenti in aree circoscritte dell'Italia meridionale","sono realtà linguistiche minoritarie presenti nelle isole dell'Italia","sono realtà linguistiche minoritarie presenti in aree circoscritte dell'Italia settentrionale","sono realtà linguistiche minoritarie che contano un numero altissimo di parlanti"]},
+{t:"Lez. 082",q:"Indicare tra i seguenti un esempio di isola linguistica:",o:["La comunità di lingua ladina stanziata in Val di Badia","tutte le minoranze linguistiche diffuse nelle isole italiane","tutti i dialetti diffusi nelle isole italiane","nessuna delle risposte è corretta"]},
+{t:"Lez. 082",q:"Indicare tra i seguenti un esempio di minoranza linguistica:",o:["il sardo","il siciliano","il napoletano","il piemontese"]},
+{t:"Lez. 082",q:"Indicare tra i seguenti un esempio di \"minoranza nazionale\"",o:["il croato","il sardo","il ladino","il siciliano"]},
+{t:"Lez. 082",q:"Nel panorama linguistico dell'Italia contemporanea:",o:["L'utilizzo del dialetto in circostanze familiari ed informali è ancora piuttosto diffuso","nessuna delle risposte è corretta","L'utilizzo del dialetto in circostanze familiari ed informali è un'eventualità piuttosto rara","Gli stati della zona Nord-Est dell'Italia sono caratterizzati da un indice di utilizzo del dialetto pari all'8%"]},
+{t:"Lez. 082",q:"Delle ricerche condotte dall'ISTAT nel 2015 hanno rivelato:",o:["un indice legato al numero di persone che utilizzano il dialetto in circostanze familiari pari al 14%","come l'indice legato al numero di persone che utilizzano il dialetto in ogni circostanza sia salito","come l'indice legato al numero di persone che utilizzano il dialetto in ogni circostanza sia drasticamente calato","nessuna delle risposte è corretta"]},
+
+{t:"Lez. 088",q:"Quando si presenta un bilinguismo infantile?",o:["quando un bambino apprende due lingue materne contemporaneamente sin dalla nascita","quando un bambino apprende una seconda lingua dopo l'apprendimento della lingua madre dai sei fino ai dodici anni","quando un bambino apprende una seconda lingua dopo l'apprendimento della lingua madre nel periodo infantile","Nessuna delle risposte è corretta"]},
+{t:"Lez. 088",q:"Quando si presenta un bilinguismo consecutivo precoce?",o:["quando un bambino apprende una seconda lingua dopo l'apprendimento della lingua madre dai tre ai sei anni","quando un bambino apprende una seconda lingua contemporaneamente alla lingua madre","Nessuna delle risposte è corretta","Quando un parlante straniero apprende una seconda lingua in poco tempo"]},
+{t:"Lez. 088",q:"Le lingue immigrate:",o:["tendono ad influenzare il panorama linguistico del paese ospite","sono un fenomeno che minaccia l'identità linguistica italiana","non influenzano in alcun modo il panorama linguistico del paese ospite","sono un fenomeno irrilevante nel panorama linguistico italiano"]},
+{t:"Lez. 088",q:"Il plurilinguismo endogeno:",o:["è un fenomeno che ha sempre caratterizzato l'Italia.","è un fenomeno dovuto alla presenza in Italia di comunità di immigrati stranieri","è un fenomeno che si sta iniziando a verificare solo di recente","nessuna delle risposte è corretta"]},
+{t:"Lez. 088",q:"Quando lo studente si sente obbligato ad imparare la L2:",o:["parliamo di motivazione secondaria","ottiene dei risultatati migliori nell'apprendimento","parliamo di motivazione primaria","nessuna delle risposte è corretta"]},
+{t:"Lez. 088",q:"L'apprendimento misto combina:",o:["apprendimento tradizionale e apprendimento digitale","apprendimento tradizionale e apprendimento spontaneo","apprendimento spontaneo e apprendimento guidato","apprendimento tradizionale e apprendimento guidato"]},
+{t:"Lez. 088",q:"Quale tra le seguenti è una relazione simmetrica?",o:["quella tra due colleghi di lavoro immigrati, e di lingue diverse","quella tra un medico italiano ed un paziente straniero","quella tra un insegnante italiano e uno studente straniero","quella tra un datore di lavoro italiano ed un operaio straniero"]},
+{t:"Lez. 088",q:"Gli immigrati di prima generazione:",o:["Solitamente arrivano ad una competenza nell'uso dell'italiano inferiore rispetto a quella della lingua d'origine","nessuna delle risposte è corretta","Solitamente arrivano ad una competenza nell'uso dell'italiano superiore rispetto a quella della lingua d'origine","Tendono ad imparare l'italiano in fretta, dimenticando l'uso della lingua d'origine"]},
+{t:"Lez. 088",q:"L'immigrazione in Italia:",o:["Si caratterizza per l'eterogeneità dei paesi di provenienza degli immigrati","Si caratterizza per la concentrazione degli immigrati in un'unica area del territorio italiano","È un fenomeno che non ha influenzato il panorama linguistico","È un fenomeno recente"]},
+{t:"Lez. 088",q:"Qual è una caratteristica degli scrittori-migranti:",o:["si avvalgono prevalentemente dell'aiuto di co-autori italiani, che si occupano della veste letteraria dell'opera","sono scrittori di professione","non sono scrittori di professione","Nessuna delle risposte è corretta"]},
+{t:"Lez. 088",q:"La letteratura migrante:",o:["è una tipologia di letteratura che ha esordito in Italia nei primi anni Novanta","è una tipologia di letteratura che si sviluppò per la prima volta in Italia","è una tipologia di letteratura che non è più produttiva","è una tipologia di letteratura che ha esordito in Italia negli anni Settanta"]},
+{t:"Lez. 088",q:"Per seconda lingua, si intende:",o:["una lingua appresa successivamente alla L1","nessuna delle risposte è corretta","una lingua straniera","una lingua di contatto"]},
+{t:"Lez. 088",q:"Gli immigrati di terza generazione:",o:["di solito tendono ad avere una competenza nell'uso della lingua d'origine inferiore rispetto a quella dei propri genitori","nessuna delle risposte è corretta","tendono ad utilizzare esclusivamente la lingua d'origine","hanno una competenza nell'uso dell'italiano pari a quella della lingua d'origine"]},
+{t:"Lez. 088",q:"Le opere della letteratura migrante italiana:",o:["sono scritte in italiano, con forestierismi provenienti dalla lingua di origine dell'autore","Nessuna delle risposte è corretta","sono scritte in un miscuglio tra la lingua di origine dell'autore e l'italiano","sono scritte nella lingua di origine dell'autore, con italianismi"]},
+{t:"Lez. 088",q:"Gli immigrati di terza generazione:",o:["tendono a conoscere meglio la lingua del paese d'arrivo","nessuna delle risposte è corretta","tendono a parlare prevalentemente la lingua del paese d'arrivo","tendono a conoscere allo stesso modo la lingua d'origine e la lingua del paese d'arrivo"]},
+{t:"Lez. 088",q:"Le nuove minoranze linguistiche:",o:["non fanno parte delle varietà linguistiche tutelate dalla Repubblica Italiana","sono tradizionalmente legate ad una specifica area del territorio italiano","sono relative a delle nuove varietà regionali di italiano","fanno parte delle varietà linguistiche tutelate dalla Repubblica Italiana"]},
+{t:"Lez. 088",q:"Il fenomeno del bilinguismo bilanciato:",o:["è una forma di bilinguismo piuttosto rara","nessuna delle risposte è corretta","è una forma di bilinguismo che si acquisisce esclusivamente nell'età adulta","è la forma di bilinguismo più diffusa in Italia"]},
+{t:"Lez. 088",q:"Quando il discente apprende la L2 senza rendersene conto siamo di fronte a un:",o:["apprendimento spontaneo","apprendimento misto","apprendimento tradizionale","apprendimento guidato"]},
+{t:"Lez. 088",q:"Per blended learning si intende:",o:["apprendimento misto","nessuna delle risposte è corretta","apprendimento guidato","apprendimento spontaneo"]},
+{t:"Lez. 088",q:"Quando il discente apprende la L2 in maniera consapevole ed esplicita siamo di fronte a un:",o:["apprendimento guidato","apprendimento spontaneo","apprendimento misto","apprendimento tradizionale"]},
+
+{t:"Lez. 096",q:"Il poeta inglese John Milton:",o:["scrisse prevalentemente in inglese, ma lasciò sei componimenti in italiano, inclusi nei suoi \"sonnets\"","scrisse prevalentemente in italiano","fu il primo scrittore straniero ad utilizzare l'italiano nelle sue opere","nessuna delle risposte è corretta"]},
+{t:"Lez. 096",q:"Il vesre è un procedimento tipico:",o:["del lunfardo","dell'italiano semplificato di Etiopia ed Eritrea","del cocoliche","del sabir."]},
+{t:"Lez. 096",q:"L'italiano è riconosciuto come minoranza:",o:["in Croazia e Slovenia","in Francia","in Corsica","in Albania"]},
+{t:"Lez. 096",q:"Il cocoliche:",o:["deve il suo nome ad un personaggio del teatro comico argentino","con il tempo si trasformò in un creolo","non ha lasciato tracce nello spagnolo utilizzato correntemente in Argentina","è ancora in uso nell'Argentina contemporanea"]},
+{t:"Lez. 096",q:"I lunfardismi:",o:["si sono diffusi anche in paesi come Cile, Uruguay, Paraguay e Bolivia","non sono più presenti nel repertorio dello spagnolo utilizzato correntemente in Argentina","nessuna delle risposte è corretta","sono presenti unicamente nella musica rock e nel tango argentino"]},
+{t:"Lez. 096",q:"Si definiscono pseudoitalianismi:",o:["termini percepiti come italiani dai parlanti stranieri, ma che in realtà non fanno parte del lessico dell'italiano","termini genuinamente italiani, che assumono un significato diverso nella lingua d'arrivo","termini italiani adattati alla lingua d'arrivo","nessuna delle risposte è corretta"]},
+{t:"Lez. 096",q:"Si definiscono falsi italianismi:",o:["termini genuinamente italiani, che assumono un significato diverso nella lingua d'arrivo","termini percepiti come italiani dai parlanti stranieri, ma che in realtà non fanno parte del lessico dell'italiano","termini italiani adattati alla lingua d'arrivo","nessuna delle risposte è corretta"]},
+{t:"Lez. 096",q:"L'italiano è una lingua co-ufficiale:",o:["nella Città del Vaticano","nel Principato di Monaco","a Malta","in Croazia"]},
+{t:"Lez. 096",q:"Il lunfardo:",o:["è un gergo nato nell'ambiente della malavita argentina e uruguaiana","è una lingua nata nel contesto dei commerci tra l'Argentina e l'Italia","non ha lasciato tracce nello spagnolo utilizzato correntemente in Argentina","era un pidgin che si è trasformato in un creolo"]},
+{t:"Lez. 096",q:"Il sabir:",o:["era una lingua franca diffusa prevalentemente nel bacino del Mediterraneo, utilizzata dall'XI al XIX secolo","era una lingua che aveva una tradizione prevalentemente scritta","non fu mai rappresentato nella produzione letteraria italiana","godeva di maggior prestigio linguistico rispetto all'italiano"]},
+{t:"Lez. 096",q:"Che tipo di lingua utilizza James Joyce nella sua traduzione del \"Finnegans Wake\"?",o:["un italiano che imita la struttura cangiante e polisemica dell'opera originale, con l'aggiunta di prestiti linguistici e neologismi","nessuna delle risposte è corretta","l'italiano standard, con l'aggiunta di prestiti linguistici e neologismi","l'italiano standard"]},
+{t:"Lez. 096",q:"L'italiano semplificato di Etiopia ed Eritrea:",o:["fungeva da \"lingua ponte\" tra i coloni italiani e gli abitanti indigeni","nessuna delle risposte è corretta","ad oggi è la lingua più diffusa nei due stati","è una delle lingue co-ufficiali dei due stati"]},
+{t:"Lez. 096",q:"Quale tra questi NON è uno stereotipo sulla lingua italiana?",o:["la lingua italiana è una lingua spiacevole da ascoltare","la lingua italiana è una lingua musicale","la lingua italiana è la più adatta a parlare di tematiche amorose","la lingua italiana è particolarmente adatta alla poesia"]},
+{t:"Lez. 096",q:"Quale lingua NON ha influenzato sulla formazione del sabir?",o:["l'inglese","il veneziano","l'italiano","il genovese"]},
+{t:"Lez. 096",q:"Quale tra i seguenti stati Africani NON fu parte dell'impero coloniale italiano?",o:["Marocco","Etiopia","Somalia","Eritrea"]},
+{t:"Lez. 096",q:"Quale tra le seguenti NON è una caratteristica dei pidgin:",o:["hanno dei parlanti madrelingua","sono lingue semplificate","con il tempo si estinguono","sono delle lingue di contatto"]},
+{t:"Lez. 096",q:"Qual è la base linguistica per la \"lingua dei lavoratori stranieri\" utilizzata negli anni '80 in Svizzera?",o:["L'italiano","Il serbo","nessuna delle risposte è corretta","Il tedesco"]},
+{t:"Lez. 096",q:"Montaigne, scrisse il suo \"Journal de voyage\":",o:["in parte in francese; in parte in italiano","in una lingua che combinava il francese con l'italiano","esclusivamente in francese","esclusivamente in italiano"]},
+{t:"Lez. 096",q:"La \"seconda ondata migratoria\" partita dall'Italia nella seconda metà del XX secolo ebbe come principali destinazioni:",o:["Gli stati più economicamente sviluppati dell'Unione Europea","L'Argentina","Gli Stati Uniti","Il Brasile"]},
+{t:"Lez. 096",q:"Quale tra le seguenti parole è uno pseudo-italianismo?",o:["mokaccino","confetti","bologna","peperoni"]},
+];
+
+// ---- Motore quiz ----
+let queue = [];      // domande della sessione corrente (ordine casuale)
+let wrongPool = [];  // domande sbagliate da ripetere alla fine
+let current = null;
+let mode = "main";   // "main" | "review"
+let totalMain = 0;
+let answeredMain = 0;
+let correctMain = 0;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function buildOptions(q){
+  const opts = q.o.map((text,idx)=>({text, correct: idx===0, orig: idx}));
+  return shuffle(opts);
+}
+
+// ---- Salvataggio locale (resiste a chiusura/riapertura del browser) ----
+const STORAGE_KEY = "paniereLinguisticaQuizState_v1";
+
+function saveState(screen){
+  const state = {
+    screen, mode,
+    queueIdx: queue.map(q=>QUESTIONS.indexOf(q)),
+    wrongPoolIdx: wrongPool.map(q=>QUESTIONS.indexOf(q)),
+    currentIdx: current ? QUESTIONS.indexOf(current) : null,
+    currentShuffledOrder: (screen==="question" && current) ? current._shuffled.map(o=>o.orig) : null,
+    totalMain, answeredMain, correctMain
+  };
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+
+function resetAll(){
+  if(confirm("Ricominciare da capo? Il progresso attuale andrà perso.")){
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    startMain();
+  }
+}
+
+function startMain(){
+  queue = shuffle(QUESTIONS);
+  wrongPool = [];
+  totalMain = queue.length;
+  answeredMain = 0;
+  correctMain = 0;
+  mode = "main";
+  next();
+}
+
+function startReview(){
+  queue = shuffle(wrongPool);
+  wrongPool = [];
+  mode = "review";
+  next();
+}
+
+function next(){
+  if(queue.length === 0){
+    if(mode === "main" && wrongPool.length > 0){
+      saveState("reviewIntro");
+      renderReviewIntro();
+    } else {
+      saveState("end");
+      renderEnd();
+    }
+    return;
+  }
+  current = queue.shift();
+  current._shuffled = buildOptions(current);
+  saveState("question");
+  render();
+}
+
+function render(){
+  const app = document.getElementById('app');
+  const total = mode === "main" ? totalMain : (answeredMain);
+  const doneCount = mode === "main" ? answeredMain : null;
+
+  let progressHtml = "";
+  if(mode === "main"){
+    const pct = Math.round((answeredMain/totalMain)*100);
+    progressHtml = `
+      <div class="progress"><span>Domanda ${answeredMain+1} / ${totalMain}</span><span>${correctMain} corrette</span></div>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+    `;
+  } else {
+    progressHtml = `<div class="mode-banner">Ripasso finale — ${queue.length+1} domande sbagliate rimaste</div>`;
+  }
+  progressHtml += `<div class="reset-link" id="reset-link">Ricomincia da capo</div>`;
+
+  const optsHtml = current._shuffled.map((o,i)=>`
+    <button class="opt" data-i="${i}">${o.text}</button>
+  `).join("");
+
+  app.innerHTML = `
+    ${progressHtml}
+    <div class="card">
+      <span class="tag">${current.t}</span>
+      <div class="question">${current.q}</div>
+      <div class="options">${optsHtml}</div>
+      <div id="feedback"></div>
+    </div>
+  `;
+
+  const buttons = app.querySelectorAll('.opt');
+  buttons.forEach(btn=>{
+    btn.addEventListener('click', ()=>handleAnswer(btn, buttons));
+  });
+  document.getElementById('reset-link').addEventListener('click', resetAll);
+}
+
+function handleAnswer(btn, buttons){
+  const i = parseInt(btn.dataset.i, 10);
+  const chosen = current._shuffled[i];
+  const isCorrect = chosen.correct;
+
+  buttons.forEach((b,idx)=>{
+    b.disabled = true;
+    if(current._shuffled[idx].correct) b.classList.add('correct');
+  });
+  if(!isCorrect) btn.classList.add('wrong');
+
+  if(mode === "main"){
+    answeredMain++;
+    if(isCorrect){ correctMain++; }
+    else { wrongPool.push(current); }
+  }
+
+  const fb = document.getElementById('feedback');
+  fb.className = "feedback " + (isCorrect ? "ok" : "bad");
+  fb.textContent = isCorrect ? "✓ Esatto." : "✗ Sbagliato — questa domanda tornerà nel ripasso finale.";
+
+  const app = document.getElementById('app');
+  const nextBtn = document.createElement('button');
+  nextBtn.className = "next-btn";
+  nextBtn.textContent = (mode==="main" && queue.length===0) ? "Continua" : "Prossima domanda";
+  nextBtn.addEventListener('click', next);
+  app.querySelector('.card').appendChild(nextBtn);
+}
+
+function renderReviewIntro(){
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="card center">
+      <div class="question" style="font-weight:normal;">
+        Hai completato il giro principale.<br>
+        Risposte corrette: ${correctMain} / ${totalMain}.
+      </div>
+      <div class="mode-banner">Ora si ripetono le ${wrongPool.length} domande sbagliate, in ordine casuale.</div>
+      <button class="start-btn" id="go-review">Inizia il ripasso</button>
+    </div>
+  `;
+  document.getElementById('go-review').addEventListener('click', startReview);
+}
+
+function renderEnd(){
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="card center">
+      <div class="final-score">Quiz completato ✓</div>
+      <div class="stats">Punteggio primo giro: ${correctMain} / ${totalMain}</div>
+      <div class="stats">Tutte le domande sbagliate sono state ripassate correttamente.</div>
+      <button class="start-btn" id="restart">Ricomincia da capo</button>
+    </div>
+  `;
+  document.getElementById('restart').addEventListener('click', startMain);
+}
+
+function renderStart(){
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="card center">
+      <div class="question" style="font-weight:normal;">
+        ${QUESTIONS.length} domande a risposta chiusa dal paniere di Linguistica Italiana.<br>
+        Ordine casuale ad ogni sessione. Le risposte sbagliate vengono segnalate e ripetute in fondo, finché non vengono date correttamente.
+      </div>
+      <button class="start-btn" id="go-start">Inizia il quiz</button>
+    </div>
+  `;
+  document.getElementById('go-start').addEventListener('click', startMain);
+}
+
+function init(){
+  const saved = loadState();
+  if(!saved){ renderStart(); return; }
+  mode = saved.mode;
+  totalMain = saved.totalMain;
+  answeredMain = saved.answeredMain;
+  correctMain = saved.correctMain;
+  queue = saved.queueIdx.map(i=>QUESTIONS[i]);
+  wrongPool = saved.wrongPoolIdx.map(i=>QUESTIONS[i]);
+  if(saved.screen === "question" && saved.currentIdx !== null){
+    const q = QUESTIONS[saved.currentIdx];
+    current = q;
+    current._shuffled = saved.currentShuffledOrder.map(origIdx=>({text:q.o[origIdx], correct:origIdx===0, orig:origIdx}));
+    render();
+  } else if(saved.screen === "reviewIntro"){
+    renderReviewIntro();
+  } else if(saved.screen === "end"){
+    renderEnd();
+  } else {
+    renderStart();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
